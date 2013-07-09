@@ -5,11 +5,11 @@ if !define?
 # This is a basic dictionary store
 # 
 
-define ['../lib/mapper'], (mapper) ->
+define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
 	# Note : This is not guarenteed to generate unique id's 
 	#
-	get_id = (store,map,obj,callback) ->
+	_get_id = (store,map,obj,callback) ->
 		# If the map defineds an id field then us the value of the id field rather than an generated id
 		#
 		if map.id_field?
@@ -28,37 +28,98 @@ define ['../lib/mapper'], (mapper) ->
 		callback(store[map.model_name])
 
 
-	load = (store,map,key,callback) ->
-		''
-
+	_dehidrate = (map,obj,source) ->
+		obj.id = source.id
+		mapper.apply map,obj,source,actions = 
+			'Simple' : (field_name,field_def,obj,source) ->
+				obj[field_name] = source[field_name]
+			'SimpleList' : (field_name,field_def,obj,source) ->
+				obj[field_name] = source[field_name].toString()
+			'Ref' : (field_name,field_def,obj,source) ->
+				obj[field_name] = source[field_name].id
+		obj
+				
 	_save = (store,map,obj,callback) ->
-		# Create a new object to store in the store
+		# Dehidrate the simple fields into a new object to be stored into the store
 		#
-		saved_obj = mapper.update map,{},obj
+		saved_obj = _dehidrate map,{},obj
+
+
+		obj_save_j = junction.create()
+
+		# Save the simple object fields
+		#
 		store["#{map.model_name}:#{obj.id}"] = saved_obj
 
-		# If the collectiodn does not exist then create a new one
+		# Add the object to the default collection
 		#
 		if !store[map.default_collection]?
 			store[map.default_collection] = []
 
+		store[map.default_collection].push obj.id
 
-		store[map.default_collection].push saved_obj.id
+		# Create the list ref object
+		#
+		mapper.apply map,{},obj,actions = 
+			'List' : (field_name,field_def,obj,source) ->
+				if !store["#{map.model_name}:#{obj.id}:#{field_name}"]?
+					store["#{map.model_name}:#{obj.id}:#{field_name}"] = []
+				for item in obj[field_name]
+					store["#{map.model_name}:#{obj.id}:#{field_name}"].push item.id
 
-		callback(saved_obj)
-		
+		junction.finalise obj_save_j,() ->
+			callback(obj)
+
+	_flatten = (map,obj,stack) ->
+		if !stack?
+			stack = []
+		stack.push dict = 
+			map:map
+			obj:obj
+		mapper.apply map,obj,{},actions =
+			'List' : (field_name,field_def,obj,source) ->
+				for x in obj[field_name]
+					_flatten field_def.map,x,stack
+			'Ref' : (field_name,field_def,obj,source) ->
+				_flatten field_def.map,obj[field_name],stack
+
+		return stack
+
+	load = (store,map,key,callback) ->
+		''
+
 	save = (store,map,obj,callback) ->
-		obj.id ?= -1
+		# Flatten the the object hierachy
+		#
+		flat_object_list = _flatten(map,obj) 
 
-		if obj.id == -1
-			get_id store,map,obj,(id) ->
-				obj.id = id
-				_save store,map,obj,callback
-		else
-			_save store,map,obj,callback
+		# Get ID's for all object that do not have id's
+		#
+		id_j = junction.create()
 
+		for obj_map in flat_object_list
+			obj_map.obj.id ?= -1
+			if obj_map.obj.id == -1
+				junction.call id_j,_get_id,store,obj_map.map,obj_map.obj,(id) ->
+					obj_map.obj.id = id
+
+		junction.finalise id_j, () ->
+			# Save all the objects now that they have id's
+			# 	
+			save_j = junction.create()
+
+			for obj_map in flat_object_list
+				# Need to chack here if object is internal or not
+				junction.call save_j,_save,store,obj_map.map,obj_map.obj,(obj) ->
+
+			junction.finalise save_j, () ->
+				callback obj		
+
+	remove = (store,map,obj,callback) ->
+		''
 
 	exports =
-		get_id:get_id	
+		_get_id:_get_id
 		load:load
 		save:save
+		remove:remove

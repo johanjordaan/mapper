@@ -2,19 +2,19 @@ if !define?
 	define = require('amdefine')(module) 
 
 define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store) ->
-	should = chai.should();
-	expect = chai.expect;
+	should = chai.should()
+	expect = chai.expect
 
-	describe 'get_id', () ->
+	describe '_get_id', () ->
 		it 'should get create a new id if it does not exist and increment it each time get_id is called', (done) ->
 			store = {}
 			bank = {}
-			basic_store.get_id store,test_maps.bank_map,bank,(id) ->
+			basic_store._get_id store,test_maps.bank_map,bank,(id) ->
 				id.should.equal 1	
 				expect(store[test_maps.bank_map.model_name]).to.exist
 				store[test_maps.bank_map.model_name].should.equal 1
 
-				basic_store.get_id store,test_maps.bank_map,{},(id) ->
+				basic_store._get_id store,test_maps.bank_map,{},(id) ->
 					id.should.equal 2	
 					store[test_maps.bank_map.model_name].should.equal 2
 					done()
@@ -22,7 +22,7 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 		it 'should return the objects id_field value if id_field is defined', (done) ->
 			store = {}
 			user = {email:'me@here.com'}
-			basic_store.get_id store,test_maps.user_map,user,(id) ->
+			basic_store._get_id store,test_maps.user_map,user,(id) ->
 				id.should.equal user.email
 				done()
 
@@ -49,3 +49,13 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 
 					done()
 
+		it 'should should save an object with reffed objects', (done) ->
+			store = {}
+			bank = {name:'Bank One'}
+			account = {type:'saving',bank:bank}
+
+			basic_store.save store,test_maps.account_map,account,(saved_account) ->
+				saved_account.id.should.equal 1
+				bank.id.should.equal 1
+
+				done()
