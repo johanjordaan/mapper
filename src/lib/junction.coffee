@@ -22,7 +22,7 @@ define [], () ->
 			ctx.count++
 			args[args.length-1] = () ->
 				args2 = Array.prototype.slice.call arguments
-				if args2.length == 1 				
+				if args2.length == 1 	
 					ctx.results.push args2[0]		# Need to handle multiple 'return' values
 				old_callback.apply(this,args2)
 				ctx.count--
