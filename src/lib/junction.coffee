@@ -26,21 +26,21 @@ define [], () ->
 					ctx.results.push args2[0]		# Need to handle multiple 'return' values
 				old_callback.apply(this,args2)
 				ctx.count--
-				finalise
+				finalise ctx
 
 			func.apply this,args
 		else
 			ctx.count++
 			ctx.results.push func.apply(this,args)
 			ctx.count--
-			finalise
+			finalise ctx
 
 	finalise = (ctx,f) ->
-		if !f?
+		if f?
 			ctx.f = f
 		
 		if ctx.count == 0 
-			if !ctx.f?			
+			if ctx.f?			
 				ctx.f ctx.results
 			
 
