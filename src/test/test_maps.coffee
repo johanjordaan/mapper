@@ -26,7 +26,7 @@ define [], () ->
 		default_collection : 'Accounts'
 
 	person_map = 
-	    model_name 	: 'Person'
+		model_name 	: 'Person'
 		fields :
 			name 	 				: { type:'Simple', default_value:'*name*' }
 			surname	 				: { type:'Simple', default_value:'*surname*' }

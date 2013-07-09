@@ -3,16 +3,17 @@ if !define?
 
 
 define [], () ->
-	# Save the object to a persistent store
+	# Apply the functions to the types
 	#
-	save = (map,obj,saver,callback) ->
-		''	
-	
-
-	# Load the object from a persistent store
-	#
-	load = (map,key,loader,callback) ->
-		obj = loader map,key
+	apply = (map,obj,source,actions,filter) ->
+		for field_name,field_def of map.fields
+			if actions[field_def.type]?
+				if filter?
+					if filter field_name,field_def,obj,source
+						actions[field_def.type] field_name,field_def,obj,source
+				else
+					actions[field_def.type] field_name,field_def,obj,source
+		obj		
 
 
 	# Update an existing object based on a source and a map
@@ -31,19 +32,21 @@ define [], () ->
 		
 		# Copy all the relevant fields from the source to the obj
 		#
-		for field_name,field_def of map.fields 
-			if field_name in Object.keys source
-				if field_def.type == 'Simple'
+		apply map,obj,source,
+			actions = 
+				Simple : (field_name,field_def,obj,source) ->
 					if field_def.conversion?
 						obj[field_name] = field_def.conversion source[field_name]
 					else
 						obj[field_name] = source[field_name]
-				else if field_def.type == 'List'
+				List : (field_name,field_def,obj,source) ->
 					for item in source[field_name]
 						obj[field_name] = [];
 						obj[field_name].push update field_def.map,{},item
-				else if field_def.type == 'Ref'
+				Ref : (field_name,field_def,obj,source) ->
 					obj[field_name] = update field_def.map,{},source[field_name]
+			,(field_name,field_def,obj,source) ->
+				field_name in Object.keys source 
 
 		# Add the default values to the obj based on the map
 		#
@@ -66,7 +69,7 @@ define [], () ->
 		update map,{},initial_data
 
 	exports = 
-		load:load
+		apply:apply
 		update:update
 		create:create	
 
