@@ -32,11 +32,14 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 		obj.id = source.id
 		mapper.apply map,obj,source,actions = 
 			'Simple' : (field_name,field_def,obj,source) ->
-				obj[field_name] = source[field_name]
+				if source[field_name]?
+					obj[field_name] = source[field_name]
 			'SimpleList' : (field_name,field_def,obj,source) ->
-				obj[field_name] = source[field_name].toString()
+				if source[field_name]?
+					obj[field_name] = source[field_name].toString()
 			'Ref' : (field_name,field_def,obj,source) ->
-				obj[field_name] = source[field_name].id
+				if source[field_name]?
+					obj[field_name] = source[field_name].id
 		obj
 				
 	_save = (store,map,obj,callback) ->
@@ -60,16 +63,21 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
 		# Create the list ref object
 		#
-		mapper.apply map,{},obj,actions = 
+		mapper.apply map,obj,{},actions = 
 			'List' : (field_name,field_def,obj,source) ->
-				if !store["#{map.model_name}:#{obj.id}:#{field_name}"]?
-					store["#{map.model_name}:#{obj.id}:#{field_name}"] = []
-				for item in obj[field_name]
-					store["#{map.model_name}:#{obj.id}:#{field_name}"].push item.id
+				if obj[field_name]?
+					if !store["#{map.model_name}:#{obj.id}:#{field_name}"]?
+						store["#{map.model_name}:#{obj.id}:#{field_name}"] = []
+					for item in obj[field_name]
+						store["#{map.model_name}:#{obj.id}:#{field_name}"].push item.id
 
 		junction.finalise obj_save_j,() ->
 			callback(obj)
 
+
+	# Any object marked as external is excluded from the list since it is asseumd that
+	# they are managed as part of some other map 
+	#		
 	_flatten = (map,obj,stack) ->
 		if !stack?
 			stack = []
@@ -78,10 +86,14 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 			obj:obj
 		mapper.apply map,obj,{},actions =
 			'List' : (field_name,field_def,obj,source) ->
-				for x in obj[field_name]
-					_flatten field_def.map,x,stack
+				if field_def.internal 
+					for item in obj[field_name]
+						if item?
+							_flatten field_def.map,item,stack
 			'Ref' : (field_name,field_def,obj,source) ->
-				_flatten field_def.map,obj[field_name],stack
+				if field_def.internal 
+					if obj[field_name]?
+						_flatten field_def.map,obj[field_name],stack
 
 		return stack
 

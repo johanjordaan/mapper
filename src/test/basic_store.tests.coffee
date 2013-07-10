@@ -49,13 +49,26 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 
 					done()
 
-		it 'should should save an object with reffed objects', (done) ->
+		it 'should should save an object utilising all the features of the mapper', (done) ->
 			store = {}
 			bank = {name:'Bank One'}
-			account = {type:'saving',bank:bank}
+			account_1 = {type:'saving',bank:bank}
+			account_2 = {type:'loan',bank:bank}
+			person = {name:'Johan',accounts:[account_1,account_2],lotto_numbers:[1,2,3]}
 
-			basic_store.save store,test_maps.account_map,account,(saved_account) ->
-				saved_account.id.should.equal 1
-				bank.id.should.equal 1
+			basic_store.save store,test_maps.bank_map,bank,(saved_bank) ->
+				basic_store.save store,test_maps.person_map,person,(saved_person) ->
+					saved_person.id.should.equal 1
+					saved_person.accounts.length.should.equal 2
+					saved_person.accounts[0].id.should.equal 1
+					saved_person.accounts[0].bank.id.should.equal 1
+					saved_person.accounts[1].id.should.equal 2
+					saved_person.accounts[1].bank.id.should.equal 1
+					saved_person.lotto_numbers.length.should.equal 3
 
-				done()
+					store[test_maps.person_map.default_collection].length.should.equal 1
+					store[test_maps.account_map.default_collection].length.should.equal 2
+					store[test_maps.bank_map.default_collection].length.should.equal 1
+
+					console.log store	
+					done()
