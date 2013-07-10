@@ -70,7 +70,7 @@
           });
         });
       });
-      return it('should should save an object utilising all the features of the mapper', function(done) {
+      it('should should save an object utilising all the features of the mapper', function(done) {
         var account_1, account_2, bank, person, store;
         store = {};
         bank = {
@@ -101,6 +101,35 @@
             store[test_maps.person_map.default_collection].length.should.equal(1);
             store[test_maps.account_map.default_collection].length.should.equal(2);
             store[test_maps.bank_map.default_collection].length.should.equal(1);
+            return done();
+          });
+        });
+      });
+      return it('should should save a list of objects', function(done) {
+        var account_1, account_2, bank, store;
+        store = {};
+        bank = {
+          name: 'Bank One'
+        };
+        account_1 = {
+          type: 'saving',
+          bank: bank
+        };
+        account_2 = {
+          type: 'loan',
+          bank: bank
+        };
+        return basic_store.save(store, test_maps.bank_map, bank, function(saved_bank) {
+          return basic_store.save_all(store, [
+            {
+              map: test_maps.account_map,
+              obj: account_1
+            }, {
+              map: test_maps.account_map,
+              obj: account_2
+            }
+          ], function(saved_accounts) {
+            saved_accounts.length.should.equal(2);
             console.log(store);
             return done();
           });

@@ -100,6 +100,19 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 	load = (store,map,key,callback) ->
 		''
 
+
+	# objects is a list of dictionaries [{obj:,map:}...]
+	save_all = (store,objects,callback) ->
+		save_all_j = junction.create()
+
+		for obj_map in objects
+			junction.call save_all_j,save,store,obj_map.map,obj_map.obj,() ->
+				obj_map.obj
+
+		junction.finalise save_all_j, (objects) ->
+			callback objects
+
+
 	save = (store,map,obj,callback) ->
 		# Flatten the the object hierachy
 		#
@@ -121,7 +134,6 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 			save_j = junction.create()
 
 			for obj_map in flat_object_list
-				# Need to chack here if object is internal or not
 				junction.call save_j,_save,store,obj_map.map,obj_map.obj,(obj) ->
 
 			junction.finalise save_j, () ->
@@ -133,5 +145,6 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 	exports =
 		_get_id:_get_id
 		load:load
+		save_all:save_all
 		save:save
 		remove:remove
