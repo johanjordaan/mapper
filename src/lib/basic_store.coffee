@@ -97,22 +97,30 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
         return stack
 
     _load = (j,store,map,key,callback) ->
-        ret_val = {id:key}
+        ret_val = {}
         db_item = store["#{map.model_name}:#{key}"]
-        mapper.apply map,ret_val,db_item,action =
-            'Simple' : (field_name,field_def,obj,source) ->
-                obj[field_name] = source[field_name]
-            'SimpleList' :  (field_name,field_def,obj,source) ->
-                obj[field_name] = source[field_name].split ','
-            'List' :  (field_name,field_def,obj,source) ->
-                list = store["#{map.model_name}:#{key}:#{field_name}"]
-                obj[field_name] = []
-                for item in list
-                    junction.call j,_load,j,store,field_def.map,item,(loaded_obj) ->  
-                        obj[field_name].push loaded_obj
-            'Ref' : (field_name,field_def,obj,source) ->
-                junction.call j,_load,j,store,field_def.map,item,(loaded_obj) ->  
-                    obj[field_name] = loaded_obj
+        #console.log db_item+','+"#{map.model_name}:#{key}"
+        #console.log map
+        #console.log '==============='
+        if db_item?
+            ret_val = {id:key}
+            mapper.apply map,ret_val,db_item,action =
+                'Simple' : (field_name,field_def,obj,source) ->
+                    if source?
+                        obj[field_name] = source[field_name]
+                'SimpleList' :  (field_name,field_def,obj,source) ->
+                    obj[field_name] = source[field_name].split ','
+                'List' :  (field_name,field_def,obj,source) ->
+                    list = store["#{map.model_name}:#{key}:#{field_name}"]
+                    obj[field_name] = []
+                    for item in list
+                        junction.call j,_load,j,store,field_def.map,item,(loaded_obj) ->  
+                            obj[field_name].push loaded_obj
+                'Ref' : (field_name,field_def,obj,source) ->
+                    # TODO : Ref fields should not be loaded multiple times.
+                    if source[field_name]?
+                        junction.call j,_load,j,store,field_def.map,source[field_name],(loaded_obj) ->  
+                            obj[field_name] = loaded_obj
         callback ret_val
 
     load = (store,map,key,callback) ->

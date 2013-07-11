@@ -172,13 +172,13 @@
         };
         return basic_store.save(store, test_maps.bank_map, bank, function(saved_bank) {
           return basic_store.save(store, test_maps.person_map, person, function(saved_person) {
-            return basic_store.load(store, test_maps.person_map, person, function(loaded_person) {
+            return basic_store.load(store, test_maps.person_map, 1, function(loaded_person) {
               loaded_person.id.should.equal(1);
               loaded_person.accounts.length.should.equal(2);
               loaded_person.accounts[0].id.should.equal(1);
               loaded_person.accounts[0].bank.id.should.equal(1);
               loaded_person.accounts[1].id.should.equal(2);
-              loaded_person.accounts[1].bank.id.should.equal(1);
+              loaded_person.accounts[1].bank.id.should.equal(1, 'Bank id should be 1');
               loaded_person.lotto_numbers.length.should.equal(3);
               return done();
             });

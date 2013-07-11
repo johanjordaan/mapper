@@ -103,13 +103,13 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 
 			basic_store.save store,test_maps.bank_map,bank,(saved_bank) ->
 				basic_store.save store,test_maps.person_map,person,(saved_person) ->
-					basic_store.load store,test_maps.person_map,person,(loaded_person) ->
+					basic_store.load store,test_maps.person_map,1,(loaded_person) ->
 						loaded_person.id.should.equal 1
 						loaded_person.accounts.length.should.equal 2
 						loaded_person.accounts[0].id.should.equal 1
 						loaded_person.accounts[0].bank.id.should.equal 1
 						loaded_person.accounts[1].id.should.equal 2
-						loaded_person.accounts[1].bank.id.should.equal 1
+						loaded_person.accounts[1].bank.id.should.equal 1,'Bank id should be 1'
 						loaded_person.lotto_numbers.length.should.equal 3
 
 						done()
