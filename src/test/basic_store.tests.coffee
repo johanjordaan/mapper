@@ -81,9 +81,37 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 			basic_store.save store,test_maps.bank_map,bank,(saved_bank) ->
 				basic_store.save_all store,[{map:test_maps.account_map,obj:account_1},{map:test_maps.account_map,obj:account_2}],(saved_accounts) ->
 					saved_accounts.length.should.equal 2
-
-					console.log store
 					done()
 
+	describe 'load', () ->
+		it 'should load the object in the store', (done) ->
+			store = {}
+			bank = {name:'Bank One'}
+			basic_store.save store,test_maps.bank_map,bank,(saved_bank) ->
+				saved_bank.id.should.equal 1
+				basic_store.load store,test_maps.bank_map,1,(loaded_bank) ->
+					loaded_bank.id.should.equal 1
+					loaded_bank.name.should.equal bank.name
+					done()
+
+		it 'should should load an object utilising all the features of the mapper', (done) ->
+			store = {}
+			bank = {name:'Bank One'}
+			account_1 = {type:'saving',bank:bank}
+			account_2 = {type:'loan',bank:bank}
+			person = {name:'Johan',accounts:[account_1,account_2],lotto_numbers:[1,2,3]}
+
+			basic_store.save store,test_maps.bank_map,bank,(saved_bank) ->
+				basic_store.save store,test_maps.person_map,person,(saved_person) ->
+					basic_store.load store,test_maps.person_map,person,(loaded_person) ->
+						loaded_person.id.should.equal 1
+						loaded_person.accounts.length.should.equal 2
+						loaded_person.accounts[0].id.should.equal 1
+						loaded_person.accounts[0].bank.id.should.equal 1
+						loaded_person.accounts[1].id.should.equal 2
+						loaded_person.accounts[1].bank.id.should.equal 1
+						loaded_person.lotto_numbers.length.should.equal 3
+
+						done()
 
 

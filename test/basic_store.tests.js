@@ -38,7 +38,7 @@
         });
       });
     });
-    return describe('save', function() {
+    describe('save', function() {
       it('should save the object in the store and assign an id if it does not have one', function(done) {
         var bank, store;
         store = {};
@@ -130,8 +130,58 @@
             }
           ], function(saved_accounts) {
             saved_accounts.length.should.equal(2);
-            console.log(store);
             return done();
+          });
+        });
+      });
+    });
+    return describe('load', function() {
+      it('should load the object in the store', function(done) {
+        var bank, store;
+        store = {};
+        bank = {
+          name: 'Bank One'
+        };
+        return basic_store.save(store, test_maps.bank_map, bank, function(saved_bank) {
+          saved_bank.id.should.equal(1);
+          return basic_store.load(store, test_maps.bank_map, 1, function(loaded_bank) {
+            loaded_bank.id.should.equal(1);
+            loaded_bank.name.should.equal(bank.name);
+            return done();
+          });
+        });
+      });
+      return it('should should load an object utilising all the features of the mapper', function(done) {
+        var account_1, account_2, bank, person, store;
+        store = {};
+        bank = {
+          name: 'Bank One'
+        };
+        account_1 = {
+          type: 'saving',
+          bank: bank
+        };
+        account_2 = {
+          type: 'loan',
+          bank: bank
+        };
+        person = {
+          name: 'Johan',
+          accounts: [account_1, account_2],
+          lotto_numbers: [1, 2, 3]
+        };
+        return basic_store.save(store, test_maps.bank_map, bank, function(saved_bank) {
+          return basic_store.save(store, test_maps.person_map, person, function(saved_person) {
+            return basic_store.load(store, test_maps.person_map, person, function(loaded_person) {
+              loaded_person.id.should.equal(1);
+              loaded_person.accounts.length.should.equal(2);
+              loaded_person.accounts[0].id.should.equal(1);
+              loaded_person.accounts[0].bank.id.should.equal(1);
+              loaded_person.accounts[1].id.should.equal(2);
+              loaded_person.accounts[1].bank.id.should.equal(1);
+              loaded_person.lotto_numbers.length.should.equal(3);
+              return done();
+            });
           });
         });
       });
