@@ -68,6 +68,10 @@ define [], () ->
 	create = (map,initial_data) ->
 		update map,{},initial_data
 
+
+	# Load the obj from a store
+	#	
+
 	exports = 
 		apply:apply
 		update:update

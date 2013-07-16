@@ -171,27 +171,45 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
     remove = (store,map,obj,callback) ->
         ''
 
-    bs_store = 
-        get_id : (key,callback) ->
-            'return an id based on the underlying stores mechanism, key here can be a table in atraditional db'
-            'get_id Person,cb(id)'
-        save : (model_name,key,obj,callback) ->
-            'save Person,1??,{id:1},cb,cb(saved_person)'
-            'store the obj under the key'
-        load : (model_name,key,callback) ->
-            'load Person,1,cb(loaded_person)'
-            'load the obj under the key'
-        save_link : (parent_model_name,parent_key,child_model_name,[list_of_ids**??or objects],cb(??)) ->
-            'link fk refs to the obj'
-            'save_link Person,1,accounts,[accounts],cb(??)'    
-        load_link : (parent_model_name,parent_key,child_model_name,cb(listof ids** or objects??)) ->
-            'load_link Person,1,accounts,cb([])'
+    get_id : (ctx,model_name,callback) ->
+        ' Assume ctx is the actual store, for other implimentations this will be the connection?'
+        'return an id based on the underlying stores mechanism, key here can be a table in atraditional db'
+        'get_id Person,cb(id)'
+        # Create the ID tracker if it des not exist
+        #   
+        if !ctx[model_name]?
+            store[model_name] = 0   
+
+        # Increment the id and return it
+        #
+        ctx[model_name]++     
+
+        callback(ctx[map.model_name])
+
+    save : (ctx,model_name,key,obj,callback) ->
+        'save Person,1??,{id:1},cb,cb(saved_person)'
+        'store the obj under the key'
+        # Save the simple object fields
+        #
+        ctx["#{model_name}:#{key}"] = obj
+
+    load : (ctx,model_name,key,callback) ->
+        'load Person,1,cb(loaded_person)'
+        'load the obj under the key'
+        
+    #save_link : (parent_model_name,parent_key,child_model_name,[list_of_ids**??or objects],cb(??)) ->
+    #    'link fk refs to the obj'
+    #    'save_link Person,1,accounts,[accounts],cb(??)'    
+    #load_link : (parent_model_name,parent_key,child_model_name,cb(listof ids** or objects??)) ->
+    #    'load_link Person,1,accounts,cb([])'
 
 
 
     exports =
-        _get_id:_get_id
+        get_id:get_id
         load:load
-        save_all:save_all
+        load_link:load_link
         save:save
+        save_link:save_link
         remove:remove
+
