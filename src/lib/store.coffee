@@ -63,26 +63,35 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
         store_funcs.load map.model_name, id, (loaded_object) ->
             if loaded_object?
-                ret_val = {id:id}
+                # Get the list of ref fields
+                #
+                ref_field_names = []
                 mapper.apply map,ret_val,loaded_object,actions =
-                    'Simple' : (field_name,field_def,obj,source) ->
-                        if source?
-                            obj[field_name] = source[field_name]
-                    'SimpleList' :  (field_name,field_def,obj,source) ->
-                        obj[field_name] = source[field_name].split ','
                     'List' :  (field_name,field_def,obj,source) ->
-                        store_funcs.load_refs store, model_name, id, field_name, (ref_list) ->
+                        ref_field_names.push field_name
+
+                # Load the refs from db
+                #
+                store_funcs.load_refs store, model_name, id, ref_field_names, (ref_list) ->
+                    ret_val = {id:id}
+                    mapper.apply map,ret_val,loaded_object,actions =
+                        'Simple' : (field_name,field_def,obj,source) ->
+                            if source?
+                                obj[field_name] = source[field_name]
+                        'SimpleList' :  (field_name,field_def,obj,source) ->
+                            obj[field_name] = source[field_name].split ','
+                        'List' :  (field_name,field_def,obj,source) ->
                             list = ref_list[field_name]
                             obj[field_name] = []
                             for item in list
                                 junction.call j, _load, j, store, store_funcs, field_def.map, item, (loaded_obj) ->  
                                     obj[field_name].push loaded_obj
-                    'Ref' : (field_name,field_def,obj,source) ->
-                        # TODO : Ref fields should not be loaded multiple times.
-                        if source[field_name]?
-                            junction.call j ,_load, j, store, store_funcs, field_def.map, source[field_name], (loaded_obj) ->  
-                                obj[field_name] = loaded_obj
-                callback ret_val
+                        'Ref' : (field_name,field_def,obj,source) ->
+                            # TODO : Ref fields should not be loaded multiple times.
+                            if source[field_name]?
+                                junction.call j ,_load, j, store, store_funcs, field_def.map, source[field_name], (loaded_obj) ->  
+                                    obj[field_name] = loaded_obj
+                    callback ret_val
 
     load = (store,store_funcs,map,id,callback) ->
         load_j = junction.create()
@@ -137,8 +146,8 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
 
     exports =
-        _get_id:_get_id
-        load:load
-        save_all:save_all
+        get_id:get_id
         save:save
+        save_all:save_all
+        load:load
         remove:remove

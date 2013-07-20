@@ -17,7 +17,11 @@
         return js_store.get_id(store, 'test', function(id) {
           id.should.equal = 1;
           store['test'].should.equal(1);
-          return done();
+          return js_store.get_id(store, 'test', function(id) {
+            id.should.equal = 2;
+            store['test'].should.equal(2);
+            return done();
+          });
         });
       });
     });

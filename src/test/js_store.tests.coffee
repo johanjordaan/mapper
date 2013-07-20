@@ -11,7 +11,10 @@ define ['chai','./test_maps','../lib/js_store'], (chai,test_maps,js_store) ->
             js_store.get_id store,'test',(id) -> 
                 id.should.equal = 1
                 store['test'].should.equal 1 
-                done()
+                js_store.get_id store,'test',(id) -> 
+                    id.should.equal = 2
+                    store['test'].should.equal 2
+                    done()
 
     describe 'save', () ->
         it 'should save an object to the store', (done) ->

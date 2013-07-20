@@ -13,8 +13,7 @@ define [], () ->
                         actions[field_def.type] field_name,field_def,obj,source
                 else
                     actions[field_def.type] field_name,field_def,obj,source
-        obj     
-
+        obj         
 
     # Any object marked as external is excluded from the list since it is asseumd that
     # they are managed as part of some other map 

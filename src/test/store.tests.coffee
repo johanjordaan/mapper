@@ -1,31 +1,27 @@
 if !define?
 	define = require('amdefine')(module) 
 
-define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store) ->
+define ['chai','./test_maps','../lib/store','../lib/js_store'], (chai,test_maps,store,js_store) ->
 	should = chai.should()
 	expect = chai.expect
 
-	describe '_get_id', () ->
+	describe 'get_id', () ->
 		it 'should get create a new id if it does not exist and increment it each time get_id is called', (done) ->
-			store = {}
+			local_store = {}
 			bank = {}
-			basic_store._get_id store,test_maps.bank_map,bank,(id) ->
+			store.get_id local_store,js_store,test_maps.bank_map,bank,(id) ->
 				id.should.equal 1	
-				expect(store[test_maps.bank_map.model_name]).to.exist
-				store[test_maps.bank_map.model_name].should.equal 1
-
-				basic_store._get_id store,test_maps.bank_map,{},(id) ->
+				store.get_id local_store,js_store,test_maps.bank_map,bank,(id) ->
 					id.should.equal 2	
-					store[test_maps.bank_map.model_name].should.equal 2
 					done()
 
 		it 'should return the objects id_field value if id_field is defined', (done) ->
-			store = {}
+			local_store = {}
 			user = {email:'me@here.com'}
-			basic_store._get_id store,test_maps.user_map,user,(id) ->
+			store.get_id local_store,js_store,test_maps.user_map,user,(id) ->
 				id.should.equal user.email
 				done()
-
+###
 	describe 'save', () ->
 		it 'should save the object in the store and assign an id if it does not have one', (done) ->
 			store = {}
@@ -113,5 +109,6 @@ define ['chai','./test_maps','../lib/basic_store'], (chai,test_maps,basic_store)
 						loaded_person.lotto_numbers.length.should.equal 3
 
 						done()
+###
 
 
