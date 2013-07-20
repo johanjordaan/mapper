@@ -10,6 +10,26 @@
   define(['chai', '../lib/mapper', './test_maps'], function(chai, mapper, test_maps) {
     var should;
     should = chai.should();
+    describe('flatten', function() {
+      return it('should flatten a hierachical structure', function() {
+        var bank, flat_list, person;
+        bank = {
+          name: 'bank one'
+        };
+        person = {
+          name: 'johan',
+          accounts: [
+            {
+              bank: bank
+            }, {
+              bank: bank
+            }
+          ]
+        };
+        flat_list = mapper.flatten(test_maps.person_map, person);
+        return flat_list.length.should.equal(3);
+      });
+    });
     describe('apply', function() {
       it('should apply action to the Simple type', function() {
         var actions, obj, source;
