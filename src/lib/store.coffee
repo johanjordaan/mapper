@@ -35,7 +35,7 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
     _save = (store,store_funcs,map,obj,callback) ->
         # Dehidrate the simple fields into a new object to be stored into the store
         #
-        saved_obj = _dehidrate map,{},obj
+        dehidrated_obj = _dehidrate map,{},obj
 
         # Create the list ref object
         #
@@ -44,14 +44,14 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
             'List' : (field_name,field_def,obj,source) ->
                 if obj[field_name]?
                     if !ref_list[field_name]?
-                        ref_lits[field_name] = []
+                        ref_list[field_name] = []
                     for item in obj[field_name]
                         ref_list[field_name].push item.id
 
         obj_save_j = junction.create()
-        junction.call obj_save_j, store_funcs.save, store, map.model_name, obj
-        junction.call obj_save_j, store_funcs.save_refs, store, map.model_name, obj, ref_list
-        junction.call obj_save_j, store_funcs.add_to_collection, store, map.default_collection, obj   
+        junction.call obj_save_j, store_funcs.save, store, map.model_name, dehidrated_obj, () -> 
+        junction.call obj_save_j, store_funcs.save_refs, store, map.model_name, obj, ref_list, () ->
+        junction.call obj_save_j, store_funcs.add_to_collection, store, map.default_collection, obj, () ->   
 
         
         junction.finalise obj_save_j,() ->
@@ -61,7 +61,7 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
     _load = (j,store,store_funcs,map,id,callback) ->
         ret_val = {}
 
-        store_funcs.load map.model_name, id, (loaded_object) ->
+        store_funcs.load store,map.model_name, id, (loaded_object) ->
             if loaded_object?
                 # Get the list of ref fields
                 #
@@ -72,7 +72,7 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
                 # Load the refs from db
                 #
-                store_funcs.load_refs store, model_name, id, ref_field_names, (ref_list) ->
+                store_funcs.load_refs store, map.model_name, id, ref_field_names, (ref_list) ->
                     ret_val = {id:id}
                     mapper.apply map,ret_val,loaded_object,actions =
                         'Simple' : (field_name,field_def,obj,source) ->
@@ -127,7 +127,7 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
         for obj_map in flat_object_list
             obj_map.obj.id ?= -1
             if obj_map.obj.id == -1
-                junction.call id_j, get_id, store_funcs, store, obj_map.map, obj_map.obj, (id) ->
+                junction.call id_j, get_id, store, store_funcs, obj_map.map, obj_map.obj, (id) ->
                     obj_map.obj.id = id
 
         junction.finalise id_j, () ->
