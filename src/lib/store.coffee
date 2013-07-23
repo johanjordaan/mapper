@@ -101,7 +101,15 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
             obj = loaded_obj
 
         junction.finalise load_j,(stuff) ->
-            callback obj        
+            callback obj 
+
+    load_all = (store,store_funcs,map,callback) ->
+        load_all_j = junction.create()
+
+        
+
+        junction.finalise load_all_j,(objects) ->
+            callback objects       
 
     # objects is a list of dictionaries [{obj:,map:}...]
     save_all = (store,store_funcs,objects,callback) ->
@@ -150,4 +158,5 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
         save:save
         save_all:save_all
         load:load
+        load_all:load_all
         remove:remove

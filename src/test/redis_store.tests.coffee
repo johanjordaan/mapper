@@ -56,6 +56,21 @@ define ['redis','chai','./test_maps','../lib/redis_store'], (redis,chai,test_map
                 redis_store.add_to_collection store,'People',johan,() ->
                     done()
 
+    describe 'load_collection', () ->
+        beforeEach (done) -> clear_db(done)
+        it 'should load a collections ids', (done) ->
+            store = {client:redis.createClient()}
+            store.client.select debug_db
+            johan = {id:2,name:'johan'}
+            lorraine = {id:5,name:'lorraine'}
+            redis_store.add_to_collection store,'People',lorraine,() ->
+                redis_store.add_to_collection store,'People',johan,() ->
+                    redis_store.load_collection store,'People',(ids)->
+                        ids.length.should.equal 2
+                        (2 in ids).should.equal true
+                        (5 in ids).should.equal true
+                        done()
+
     describe 'load', () ->
         beforeEach (done) -> clear_db(done)
         it 'should load an object from the store', (done) ->
@@ -65,7 +80,7 @@ define ['redis','chai','./test_maps','../lib/redis_store'], (redis,chai,test_map
             redis_store.save store,'Person',person,(saved_person) ->
                 redis_store.load store,'Person',2,(loaded_person) ->
                     expect(loaded_person).to.exist
-                    loaded_person.id.should.equal '2'
+                    loaded_person.id.should.equal 2
                     loaded_person.name.should.equal 'johan'
                     done()
 

@@ -27,6 +27,9 @@ define [], () ->
                     store[key].push ref_id
             callback()        
 
+        load_collection : (store,name,callback) ->
+            callback store[name]        
+
         add_to_collection : (store,name,obj,callback) ->
             if !store[name]?
                 store[name] = []

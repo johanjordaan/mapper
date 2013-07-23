@@ -56,6 +56,24 @@ define ['chai','./test_maps','../lib/js_store'], (chai,test_maps,js_store) ->
                     store['People'][1].should.equal 2
                     done()
 
+    describe 'load_collection', () ->
+        it 'should load a collections ids', (done) ->
+            store = {}
+            johan = {id:2,name:'johan'}
+            lorraine = {id:5,name:'lorraine'}
+            js_store.add_to_collection store,'People',lorraine,() ->
+                expect(store['People']).to.exist
+                store['People'].length.should.equal 1
+                store['People'][0].should.equal 5
+                js_store.add_to_collection store,'People',johan,() ->
+                    store['People'].length.should.equal 2
+                    store['People'][1].should.equal 2
+                    js_store.load_collection store,'People',(ids)->
+                        ids.length.should.equal 2
+                        (2 in ids).should.equal true
+                        (5 in ids).should.equal true
+                        done()
+
     describe 'load', () ->
         it 'should load an object from the store', (done) ->
             store = {}

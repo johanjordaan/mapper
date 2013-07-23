@@ -24,6 +24,12 @@ define ['redis','../lib/junction'], (redis,junction) ->
             multi.exec (err,reply) ->
                 callback()
 
+        load_collection : (store,name,callback) ->
+            store.client.smembers name,(err,ids) ->
+                ret_val = []
+                ret_val.push(Number(id)) for id in ids    
+                callback ret_val       
+
         add_to_collection : (store,name,obj,callback) ->
             store.client.sadd name,obj.id,(err,reply) ->
                 callback()
@@ -31,6 +37,7 @@ define ['redis','../lib/junction'], (redis,junction) ->
         load : (store,name,id,callback) ->
             key = "#{name}:#{id}"
             store.client.hgetall key,(err,obj) ->
+                obj.id = id
                 callback obj
 
         load_refs : (store,name,id,field_names,callback) ->
