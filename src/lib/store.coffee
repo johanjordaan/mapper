@@ -104,11 +104,14 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
             callback obj 
 
     load_all = (store,store_funcs,map,callback) ->
-        load_all_j = junction.create()
-
         
 
-        junction.finalise load_all_j,(objects) ->
+
+        load_all_j = junction.create()
+
+        junction.call 
+
+        junction.finalise load_all_j,(object_ids) ->
             callback objects       
 
     # objects is a list of dictionaries [{obj:,map:}...]
