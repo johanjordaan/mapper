@@ -1,0 +1,16 @@
+{
+  "name": "mapper",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-resource": "git://github.com/angular/bower-angular-resource.git#~1.0.7",
+    "bootstrap": "git://github.com/twitter/bootstrap.git#~3.0.0-rc1",
+    "requirejs": "git://github.com/jrburke/requirejs.git#~2.1.8"
+  }
+}

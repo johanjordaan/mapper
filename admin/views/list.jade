@@ -1,0 +1,8 @@
+button(ng-click="add()") add
+table
+  tr(ng-repeat="model in models")
+    td {{model.name}}
+    td {{model.description}}
+    
+    td 
+        button(ng-click="remove(model.id)") delete
