@@ -42,5 +42,3 @@ define [], () ->
 			default_collection	: {type:'Simple',default_value:'*default_collection*'}
 
 	field_map.fields.map.map = map_map		
-
-	console.log field_map.fields.map.map 

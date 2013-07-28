@@ -17,35 +17,30 @@
     module = angular.module('myApp', ['ngResource']);
     module.value('some_value', '');
     module.factory('Models', function($resource) {
-      return $resource('/models', {}, {
-        query: {
-          method: 'GET',
-          params: {
-            phoneId: 'phones'
-          },
-          isArray: true
-        }
-      });
+      return $resource('/models');
     });
     module.config(function($routeProvider) {
-      return $routeProvider.when('/', {
+      $routeProvider.when('/', {
         controller: ListCtrl,
         templateUrl: 'list'
       });
+      $routeProvider.when('/new', {
+        controller: CreateCtrl,
+        templateUrl: 'detail'
+      });
+      return $routeProvider.otherwise({
+        redirectTo: '/'
+      });
     });
     this.ListCtrl = function($scope, Models) {
-      Models.query(function(data) {
+      return Models.query(function(data) {
         return $scope.models = data;
       });
-      $scope.remove = function(id) {
-        return Models.pop();
-      };
-      return $scope.add = function() {
-        return Models.push({
-          id: Models.length,
-          name: "Some new model",
-          description: "A description ..."
-        });
+    };
+    this.CreateCtrl = function($scope, $location, Models) {
+      return $scope.save = function() {
+        Models.save($scope.model);
+        return $location.path('/');
       };
     };
     return angular.bootstrap(document, ['myApp']);

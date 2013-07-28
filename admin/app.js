@@ -50,6 +50,15 @@
     return res.render('list', {});
   });
 
+  app.get('/detail', function(req, res) {
+    return res.render('detail', {});
+  });
+
+  app.post('/models', function(req, res) {
+    console.log(req.body);
+    return res.json("ok");
+  });
+
   app.get('/models', function(req, res) {
     var ret_val;
     ret_val = [

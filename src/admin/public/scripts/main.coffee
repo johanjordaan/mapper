@@ -13,28 +13,35 @@ require ["/angular/angular.js","/angular-resource/angular-resource.js"], (angula
   module.value 'some_value', ''
 
   module.factory 'Models', ($resource) ->
-    $resource '/models', {}, 
-      query: 
-        method:'GET'
-        params:
-          phoneId:'phones'
-        isArray:true
+    $resource '/models'
+
+    #, {}, 
+    #  get: 
+    #    method:'GET'
+    #    params:
+    #      phoneId:'phones'
+    #    isArray:true
 
   module.config ($routeProvider) ->
     
     $routeProvider.when '/',
       controller  : ListCtrl
       templateUrl : 'list'
+
+    $routeProvider.when '/new',
+      controller  : CreateCtrl
+      templateUrl : 'detail'
+
+    $routeProvider.otherwise 
+      redirectTo : '/'  
   
   @ListCtrl = ($scope,Models) ->
-    #$scope.models = Models
     Models.query (data) ->
       $scope.models = data
 
-    $scope.remove = (id) ->
-      Models.pop()
-    $scope.add = () ->
-      Models.push({id:Models.length,name:"Some new model",description:"A description ..."})  
-
+  @CreateCtrl = ($scope,$location,Models) ->
+    $scope.save = () ->
+      Models.save $scope.model
+      $location.path '/'
 
   angular.bootstrap document, ['myApp']

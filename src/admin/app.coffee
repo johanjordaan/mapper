@@ -29,6 +29,13 @@ app.get '/', (req, res) ->
 app.get '/list', (req, res) ->
   res.render('list', { })
 
+app.get '/detail', (req, res) ->
+  res.render('detail', { })
+
+app.post '/models', (req,res) ->
+  console.log req.body
+  res.json("ok")
+
 app.get '/models', (req,res) ->
   ret_val = [
     name : 'Planet'
