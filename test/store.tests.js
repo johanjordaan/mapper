@@ -118,15 +118,7 @@
           bank: bank
         };
         return store.save(local_store, js_store, test_maps.bank_map, bank, function(saved_bank) {
-          return store.save_all(local_store, js_store, [
-            {
-              map: test_maps.account_map,
-              obj: account_1
-            }, {
-              map: test_maps.account_map,
-              obj: account_2
-            }
-          ], function(saved_accounts) {
+          return store.save_all(local_store, js_store, test_maps.account_map, [account_1, account_2], function(saved_accounts) {
             saved_accounts.length.should.equal(2);
             return done();
           });

@@ -72,7 +72,7 @@ define ['chai','./test_maps','../lib/store','../lib/js_store'], (chai,test_maps,
 			account_2 = {type:'loan',bank:bank}
 
 			store.save local_store,js_store,test_maps.bank_map,bank,(saved_bank) ->
-				store.save_all local_store,js_store,[{map:test_maps.account_map,obj:account_1},{map:test_maps.account_map,obj:account_2}],(saved_accounts) ->
+				store.save_all local_store,js_store,test_maps.account_map,[account_1,account_2],(saved_accounts) ->
 					saved_accounts.length.should.equal 2
 					done()
 
