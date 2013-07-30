@@ -95,7 +95,6 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
     load = (store,store_funcs,map,id,callback) ->
         load_j = junction.create()
-
         obj = {}
         junction.call load_j, _load, load_j, store, store_funcs, map, id, (loaded_obj) ->
             obj = loaded_obj
@@ -109,15 +108,14 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
 
     load_all = (store,store_funcs,map,callback) ->
         load_all_j = junction.create()
-
         ret_val = []
-        junction.call load_all_j,load_collection,store,map.default_collection,(object_ids) ->
+        junction.call load_all_j,load_collection,store,store_funcs,map.default_collection,(object_ids) ->
             for id in object_ids
-                junction.call load_all_j,load,store,store_funcs,id,(loaded_object) ->
+                junction.call load_all_j,load,store,store_funcs,map,id,(loaded_object) ->
                     ret_val.push loaded_object
 
         junction.finalise load_all_j,(object_ids) ->
-            callback loaded_objects       
+            callback ret_val       
 
     # objects is a list of dictionaries [{obj:,map:}...]
     save_all = (store,store_funcs,map,objects,callback) ->

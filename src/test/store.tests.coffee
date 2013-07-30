@@ -105,5 +105,19 @@ define ['chai','./test_maps','../lib/store','../lib/js_store'], (chai,test_maps,
 						loaded_person.accounts[1].bank.id.should.equal 1,'Bank id should be 1'
 						loaded_person.lotto_numbers.length.should.equal 3
 						done()
+	describe 'load_all', () ->
+		it 'should load all the objects in the default collection of a map', (done) ->
+			local_store = {}
+			bank = {name:'Bank One'}
+			account_1 = {type:'saving',bank:bank}
+			account_2 = {type:'loan',bank:bank}
+
+			store.save local_store,js_store,test_maps.bank_map,bank,(saved_bank) ->
+				store.save_all local_store,js_store,test_maps.account_map,[account_1,account_2],(saved_accounts) ->
+					saved_accounts.length.should.equal 2
+					store.load_all local_store,js_store,test_maps.account_map,(loaded_accounts) ->
+						loaded_accounts.length.should.equal 2	
+						done()
+
 
 

@@ -125,7 +125,7 @@
         });
       });
     });
-    return describe('load', function() {
+    describe('load', function() {
       it('should load the object in the store', function(done) {
         var bank, local_store;
         local_store = {};
@@ -170,6 +170,32 @@
               loaded_person.accounts[1].id.should.equal(2);
               loaded_person.accounts[1].bank.id.should.equal(1, 'Bank id should be 1');
               loaded_person.lotto_numbers.length.should.equal(3);
+              return done();
+            });
+          });
+        });
+      });
+    });
+    return describe('load_all', function() {
+      return it('should load all the objects in the default collection of a map', function(done) {
+        var account_1, account_2, bank, local_store;
+        local_store = {};
+        bank = {
+          name: 'Bank One'
+        };
+        account_1 = {
+          type: 'saving',
+          bank: bank
+        };
+        account_2 = {
+          type: 'loan',
+          bank: bank
+        };
+        return store.save(local_store, js_store, test_maps.bank_map, bank, function(saved_bank) {
+          return store.save_all(local_store, js_store, test_maps.account_map, [account_1, account_2], function(saved_accounts) {
+            saved_accounts.length.should.equal(2);
+            return store.load_all(local_store, js_store, test_maps.account_map, function(loaded_accounts) {
+              loaded_accounts.length.should.equal(2);
               return done();
             });
           });
