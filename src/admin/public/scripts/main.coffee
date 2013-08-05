@@ -35,13 +35,26 @@ require ["/angular/angular.js","/angular-resource/angular-resource.js"], (angula
     $routeProvider.otherwise 
       redirectTo : '/'  
   
-  @ListCtrl = ($scope,Models) ->
+  @ListCtrl = ($scope,$route,Models,$location) ->
     Models.query (data) ->
       $scope.models = data
+    $scope.remove = (model) ->
+      Models.remove {id:model.id}, 
+        () ->
+          $route.reload()
+        () -> 
+          $route.reload()
+          
 
   @CreateCtrl = ($scope,$location,Models) ->
     $scope.save = () ->
       Models.save $scope.model
       $location.path '/'
+    $scope.cancel = () ->
+      $location.path '/'
+
+
+
+
 
   angular.bootstrap document, ['myApp']

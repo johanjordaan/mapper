@@ -6,8 +6,8 @@
     define = require('amdefine')(module);
   }
 
-  define(['../lib/store', '../lib/js_store', '../lib/mapper_maps.js'], function(store, js_store, mapper_maps) {
-    var app, express, http, path;
+  define(['../lib/mapper', '../lib/store', '../lib/js_store', '../lib/mapper_maps.js'], function(mapper, store, js_store, mapper_maps) {
+    var app, express, http, local_store, path;
     express = require('express');
     http = require('http');
     path = require('path');
@@ -28,6 +28,7 @@
     if ('development' === app.get('env')) {
       app.use(express.errorHandler());
     }
+    local_store = {};
     app.get('/', function(req, res) {
       return res.render('index', {
         title: 'Express II'
@@ -40,22 +41,20 @@
       return res.render('detail', {});
     });
     app.post('/models', function(req, res) {
-      console.log(req.body);
-      return res.json("ok");
+      var new_map;
+      new_map = mapper.create(mapper_maps.map_map, req.body);
+      return store.save(local_store, js_store, mapper_maps.map_map, new_map, function(saved_map) {
+        return res.json(saved_map);
+      });
     });
     app.get('/models', function(req, res) {
-      var ret_val;
-      ret_val = [
-        {
-          name: 'Planet',
-          description: 'This is a planet model'
-        }, {
-          name: 'Ship',
-          description: 'This is a ship model'
-        }
-      ];
-      console.log(ret_val);
-      return res.json(ret_val);
+      return store.load_all(local_store, js_store, mapper_maps.map_map, function(loaded_maps) {
+        return res.json(loaded_maps);
+      });
+    });
+    app["delete"]('/models', function(req, res) {
+      console.log(req.query.id);
+      return res.json({});
     });
     return http.createServer(app).listen(app.get('port'), function() {
       return console.log('Express server listening on port ' + app.get('port'));

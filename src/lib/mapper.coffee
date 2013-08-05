@@ -72,15 +72,16 @@ define [], () ->
         # Add the default values to the obj based on the map
         #
         for field_name,field_def of map.fields 
-            if field_name not in Object.keys source
-                if field_def.type == 'Simple'
-                    obj[field_name] = field_def.default_value           # Assuming that a conversion is not required for defaults
-                else if field_def.type == 'List'
-                    obj[field_name] = [i for i in field_def.default_value]
-                else if field_def.type == 'SimpleList'
-                    obj[field_name] = field_def.default_value.slice     # Assuming that a conversion is not required for defaults
-                else if field_def.type == 'Ref'
-                    obj[field_name] = create field_def.map,field_def.default_value
+            if field_def.default_value?
+                if field_name not in Object.keys source
+                    if field_def.type == 'Simple'
+                        obj[field_name] = field_def.default_value           # Assuming that a conversion is not required for defaults
+                    else if field_def.type == 'List'
+                        obj[field_name] = [i for i in field_def.default_value]
+                    else if field_def.type == 'SimpleList'
+                        obj[field_name] = field_def.default_value.slice     # Assuming that a conversion is not required for defaults
+                    else if field_def.type == 'Ref'
+                        obj[field_name] = create field_def.map,field_def.default_value
     
         obj
 

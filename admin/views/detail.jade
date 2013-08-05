@@ -1,4 +1,6 @@
 form(name="myForm")
-  input(type="text",name="name",ng-model="model.name",required)
+  input(type="text",name="name",ng-model="model.model_name",required)
   input(type="text",name="name",ng-model="model.description",required)
+  button(ng-click="cancel()") Cancel  
   button(ng-click="save()") Save
+

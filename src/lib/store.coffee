@@ -83,9 +83,10 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
                         'List' :  (field_name,field_def,obj,source) ->
                             list = ref_list[field_name]
                             obj[field_name] = []
-                            for item in list
-                                junction.call j, _load, j, store, store_funcs, field_def.map, item, (loaded_obj) ->  
-                                    obj[field_name].push loaded_obj
+                            if list?    
+                                for item in list
+                                    junction.call j, _load, j, store, store_funcs, field_def.map, item, (loaded_obj) ->  
+                                        obj[field_name].push loaded_obj
                         'Ref' : (field_name,field_def,obj,source) ->
                             # TODO : Ref fields should not be loaded multiple times.
                             if source[field_name]?
@@ -110,9 +111,10 @@ define ['../lib/mapper','../lib/junction'], (mapper,junction) ->
         load_all_j = junction.create()
         ret_val = []
         junction.call load_all_j,load_collection,store,store_funcs,map.default_collection,(object_ids) ->
-            for id in object_ids
-                junction.call load_all_j,load,store,store_funcs,map,id,(loaded_object) ->
-                    ret_val.push loaded_object
+            if object_ids?
+                for id in object_ids
+                    junction.call load_all_j,load,store,store_funcs,map,id,(loaded_object) ->
+                        ret_val.push loaded_object
 
         junction.finalise load_all_j,(object_ids) ->
             callback ret_val       

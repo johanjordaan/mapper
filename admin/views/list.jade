@@ -1,8 +1,8 @@
 a(href="#/new") Add
 table
   tr(ng-repeat="model in models")
-    td {{model.name}}
+    td {{model.model_name}}
     td {{model.description}}
     
     td 
-        button(ng-click="remove(model.id)") delete
+        button(ng-click="remove(model)") delete

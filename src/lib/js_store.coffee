@@ -45,4 +45,17 @@ define [], () ->
             for field_name in field_names 
                 key = "#{name}:#{id}:#{field_name}"
                 ret_val[field_name] = store[key]
-            callback ret_val       
+            callback ret_val   
+
+        remove : (store,name,obj,callback) ->
+            key = "#{name}:#{obj.id}"
+            delete store[key]
+            callback()        
+
+        remove_refs : (store,name,obj,ref_list,callback) ->
+            for ref_name,refs of ref_list
+                key = "#{name}:#{obj.id}:#{ref_name}"
+                delete store[key]
+            callback()               
+
+

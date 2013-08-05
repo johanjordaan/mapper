@@ -32,14 +32,26 @@
         redirectTo: '/'
       });
     });
-    this.ListCtrl = function($scope, Models) {
-      return Models.query(function(data) {
+    this.ListCtrl = function($scope, $route, Models, $location) {
+      Models.query(function(data) {
         return $scope.models = data;
       });
+      return $scope.remove = function(model) {
+        return Models.remove({
+          id: model.id
+        }, function() {
+          return $route.reload();
+        }, function() {
+          return $route.reload();
+        });
+      };
     };
     this.CreateCtrl = function($scope, $location, Models) {
-      return $scope.save = function() {
+      $scope.save = function() {
         Models.save($scope.model);
+        return $location.path('/');
+      };
+      return $scope.cancel = function() {
         return $location.path('/');
       };
     };

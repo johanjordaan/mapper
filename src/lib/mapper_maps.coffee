@@ -38,7 +38,14 @@ define [], () ->
 		default_collection : 'Maps'
 		fields :
 			model_name			: {type:'Simple',default_value:'*model_name*'}
+			description			: {type:'Simple',default_value:'*description*'}
 			fields 				: {type:'List',map:field_map}
 			default_collection	: {type:'Simple',default_value:'*default_collection*'}
 
 	field_map.fields.map.map = map_map		
+
+	exports = 
+		field_type_map:field_type_map
+		field_map:field_map
+		map_map:map_map
+

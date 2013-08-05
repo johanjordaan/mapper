@@ -1,7 +1,7 @@
 if !define?
   define = require('amdefine')(module) 
 
-define ['../lib/store','../lib/js_store','../lib/mapper_maps.js'], (store,js_store,mapper_maps) ->
+define ['../lib/mapper','../lib/store','../lib/js_store','../lib/mapper_maps.js'], (mapper,store,js_store,mapper_maps) ->
   express = require 'express'
   http = require 'http' 
   path = require 'path'
@@ -26,7 +26,10 @@ define ['../lib/store','../lib/js_store','../lib/mapper_maps.js'], (store,js_sto
   if ('development' == app.get('env'))
     app.use(express.errorHandler())
 
+  local_store = {}  
 
+  # Views
+  #
   app.get '/', (req, res) ->
     res.render('index', { title: 'Express II' })
 
@@ -36,22 +39,22 @@ define ['../lib/store','../lib/js_store','../lib/mapper_maps.js'], (store,js_sto
   app.get '/detail', (req, res) ->
     res.render('detail', { })
 
+  # REST  
+  #
   app.post '/models', (req,res) ->
-    console.log req.body
-    res.json("ok")
+    new_map = mapper.create mapper_maps.map_map,req.body
+    store.save local_store,js_store,mapper_maps.map_map,new_map,(saved_map)->
+      res.json(saved_map)   
 
   app.get '/models', (req,res) ->
-    
-    ret_val = [
-      name : 'Planet'
-      description : 'This is a planet model'
-    ,
-      name : 'Ship'
-      description : 'This is a ship model'
-    ] 
-    console.log ret_val
+    store.load_all local_store,js_store,mapper_maps.map_map,(loaded_maps) ->
+      ##console.log loaded_maps
+      res.json(loaded_maps)
 
-    res.json(ret_val)   
+  app.delete '/models', (req,res) ->
+    console.log req.query.id
+    res.json({})
+      
 
 
   http.createServer(app).listen app.get('port'), () ->
